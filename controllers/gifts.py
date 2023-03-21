@@ -2,23 +2,26 @@ from http import HTTPStatus
 
 from marshmallow.exceptions import ValidationError
 from flask import Blueprint, g, request
+
 # from sqlalchemy import text
 from models.comment import CommentModel
 from models.gift import GiftModel
+
 # from models.gift_data import gifts_list
 # from app import db
 from middleware.secure_route import secure_route
+
 # from models.user_gift import UserGiftModel
 from serializers.gift import GiftSchema
 from serializers.comment import CommentSchema
 from serializers.user import UserSchema
-# from serializers.user_gift import UserGiftSchema
+from serializers.user_gift import UserGiftSchema
 
 # ! Instantiate gift schema
 gift_schema = GiftSchema()
 comment_schema = CommentSchema()
 user_schema = UserSchema()
-# user_gift_schema = UserGiftSchema()
+user_gift_schema = UserGiftSchema()
 
 router = Blueprint("gifts", __name__)
 
@@ -43,7 +46,7 @@ def get_single_gift(gift_id):
 @secure_route
 def create_gift():
     gift_dictionary = request.json
-    gift_dictionary['user_id'] = g.current_user.id
+    gift_dictionary["user_id"] = g.current_user.id
 
     try:
         gift = gift_schema.load(gift_dictionary)
@@ -51,6 +54,7 @@ def create_gift():
     except ValidationError as e:
         return {"errors": e.messages, "message": "Something went wrong"}
     return gift_schema.jsonify(gift)
+
 
 # ! PUT/PATCH
 @router.route("/gifts/<int:gift_id>", methods=["PUT", "PATCH"])
@@ -69,13 +73,11 @@ def update_gift(gift_id):
     try:
         # ! Is this person the tea's owner or not?
         if existing_gift.user_id != g.current_user.id:
-            return { "message": "This is not your gift! Get your own gift. ☕️" }, HTTPStatus.UNAUTHORIZED
+            return {
+                "message": "This is not your gift! Get your own gift. ☕️"
+            }, HTTPStatus.UNAUTHORIZED
 
-        gift = gift_schema.load(
-            gift_dictionary,
-            instance=existing_gift,
-            partial=True
-        )
+        gift = gift_schema.load(gift_dictionary, instance=existing_gift, partial=True)
 
         gift.save()
     except ValidationError as e:
@@ -89,10 +91,10 @@ def update_gift(gift_id):
     # gift.save()
     # return gift_schema.jsonify(gift), HTTPStatus.OK
 
+
 @router.route("/gifts/<int:gift_id>", methods=["DELETE"])
 @secure_route
 def remove_gift(gift_id):
-
     gift = GiftModel.query.get(gift_id)
 
     if not gift:
@@ -109,7 +111,7 @@ def create_comment(gift_id):
 
     existing_gift = GiftModel.query.get(gift_id)
     if not existing_gift:
-        return { "message": "No gift found" }, HTTPStatus.NOT_FOUND
+        return {"message": "No gift found"}, HTTPStatus.NOT_FOUND
 
     try:
         comment = comment_schema.load(comment_dictionary)
@@ -162,9 +164,23 @@ def remove_comment(comment_id):
     #     return {"message": "Tea not found"}, HTTPStatus.NOT_FOUND
 
     # return gift_schema.jsonify(gift), HTTPStatus.OK
-    return '', HTTPStatus.NO_CONTENT
+    return "", HTTPStatus.NO_CONTENT
 
 
+# @router.route('/tea-notes', methods=["POST"])
+# @secure_route
+# def create_tea_note():
+
+#     tea_note_dictionary = request.json
+
+#     try:
+#         tea_note = tea_note_schema.load(tea_note_dictionary)
+#     except ValidationError as e:
+#         return {"errors": e.messages, "message": "Something went wrong"}
+
+#     tea_note.save()
+
+#     return tea_note_schema.jsonify(tea_note)
 # @router.route('/user_gift', methods=["POST"])
 # @secure_route
 # def create_user_gift():
@@ -193,7 +209,6 @@ def remove_comment(comment_id):
 #     except Exception as e:
 #         print(e)
 #         return {"messages": "Something went wrong"}
-
 
 
 # @router.route("/lookup-gifts-sec/<string:gift_name>", methods=["GET"])

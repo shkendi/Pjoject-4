@@ -2,7 +2,7 @@ import re
 from marshmallow import fields, ValidationError
 from app import ma
 from models.user import UserModel
-
+from serializers.user_gift import UserGiftSchema
 
 # ! Here is a function for validating my password
 def validate_password(password):
@@ -16,6 +16,7 @@ def validate_password(password):
 
 class UserSchema(ma.SQLAlchemyAutoSchema):
     password = fields.String(required=True, validate=validate_password)
+    basket = fields.Nested("UserGiftSchema", many=True)
 
     class Meta:
         model = UserModel

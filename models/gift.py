@@ -1,7 +1,7 @@
 from app import db
 from models.base import BaseModel
 # from models.comment import CommentModel
-
+from models.user_gift import UserGiftModel
 
 class GiftModel(db.Model, BaseModel):
     __tablename__ = "gifts"
@@ -17,3 +17,4 @@ class GiftModel(db.Model, BaseModel):
 
     comments = db.relationship("CommentModel", backref="gifts", cascade="all, delete")
     # user = db.relationship("UserModel", backref="gifts")
+    customers = db.relationship('UserGiftModel', back_populates="gift")

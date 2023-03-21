@@ -16,7 +16,7 @@ class UserModel(db.Model, BaseModel):
     password_hash = db.Column(db.Text, nullable=True)
 
     gifts = db.relationship("GiftModel", backref="users")
-
+    basket = db.relationship("UserGiftModel", back_populates="customer")
     @hybrid_property
     def password(self):
         pass
